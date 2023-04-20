@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Memes</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        @media (min-width: 768px) {
+            .h-md-100 {
+                height: 100vh;
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-round {
+            border-radius: 30px;
+        }
+
+        .bg-gray {
+            background: #3a3e3e;
+        }
+
+        .text-cyan {
+            color: #35bdff;
+        }
+
+        #preview-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        #meme-preview {
+            max-width: 100%;
+        }
+
+        #download-button {
+            display: block;
+            margin-top: 1rem;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row d-md-flex h-md-100 align-items-center">
+            <div class="col-md-6 p-0 bg-gray h-md-100">
+                <div class="text-white d-md-flex align-items-center h-100 p-5 text-center justify-content-center">
+                    <form id="meme-form" class="w-100">
+                        <div class="form-group">
+                            <label for="imageUrl" class="text-cyan">URL de la imagen:</label>
+                            <input type="text" id="imageUrl" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="memeText" class="text-cyan">Texto del meme:</label>
+                            <input type="text" id="memeText" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-light">Previsualizar</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6 p-0 bg-white h-md-100">
+                <div class="d-md-flex align-items-center h-md-100 p-5 justify-content-center">
+                    <div>
+                        <div id="preview-container">
+                            <img id="meme-preview" src="/baseimage" alt="Vista previa del meme" class="img-fluid">
+                        </div>
+                        <a id="download-button" href="" download="meme.jpg" class="btn btn-primary">Descargar Meme</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $("#meme-form").on("submit", async function (event) {
+            event.preventDefault();
+
+            const imageUrl = $("#imageUrl").val();
+            const memeText = $("#memeText").val();
+
+            if (imageUrl && memeText) {
+                const encodedImageUrl = encodeURIComponent(imageUrl);
+                const encodedMemeText = encodeURIComponent(memeText);
+                const memeUrl = `/getimage?imageUrl=${encodedImageUrl}&texto=${encodedMemeText}`;
+
+                $("#meme-preview").attr("src", memeUrl);
+                $("#download-button").attr("href", memeUrl);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

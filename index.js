@@ -24,9 +24,22 @@ function wrapText(text, maxChars) {
 }
 
 function sendResponse(res, statusCode, contentType, content) {
-    res.writeHead(statusCode, { "Content-Type": contentType });
-    res.end(content);
+    if (contentType.startsWith("image/") && content === "res/baseimage.png") {
+        fs.readFile(content, (error, data) => {
+            if (error) {
+                res.writeHead(404, { "Content-Type": "text/plain" });
+                res.end("Imagen no encontrada.");
+            } else {
+                res.writeHead(statusCode, { "Content-Type": contentType });
+                res.end(data);
+            }
+        });
+    } else {
+        res.writeHead(statusCode, { "Content-Type": contentType });
+        res.end(content);
+    }
 }
+
 
 function createSvg(width, height, fontSize, textLines) {
     return `
@@ -52,9 +65,9 @@ function createSvg(width, height, fontSize, textLines) {
       ${textLines
             .map(
                 (line, index) =>
-                    `<text x="${width / 2}" y="${height - (height * 0.3) + 25 + fontSize + (fontSize + 10) * index
+                    `<text x="${width / 2}" y="${height - (height * 0.35) + 25 + fontSize + (fontSize + 10) * index
                     }" class="title-bg">${line}</text>
-             <text x="${width / 2}" y="${height - (height * 0.3) + 25 + fontSize + (fontSize + 10) * index
+             <text x="${width / 2}" y="${height - (height * 0.35) + 25 + fontSize + (fontSize + 10) * index
                     }" class="title-fg">${line}</text>`
             )
             .join("")}
@@ -97,14 +110,27 @@ const server = http.createServer(async (req, res) => {
                 .toBuffer();
 
             sendResponse(res, 200, "image/jpeg", outputBuffer);
-            
+
         } catch (error) {
             console.error(error);
             sendResponse(res, 500, "text/plain", "Error al procesar la imagen.");
         }
+    } else if (requestUrl.pathname === '/') {
+        fs.readFile('./index.html', (err, data) => {
+            if (err) {
+                console.error(err);
+                sendResponse(res, 500, 'text/plain', 'Error al leer el archivo index.html.');
+            } else {
+                sendResponse(res, 200, 'text/html', data);
+            }
+        });
+    } else if (requestUrl.pathname === "/baseimage") {
+        sendResponse(res, 200, "image/png", "res/baseimage.png");
+
     } else {
-        sendResponse(res, 404, "text/plain", "Endpoint no encontrado.");
+        sendResponse(res, 404, 'text/plain', 'Endpoint no encontrado.');
     }
+
 });
 
 const PORT = process.env.PORT || 3200;
